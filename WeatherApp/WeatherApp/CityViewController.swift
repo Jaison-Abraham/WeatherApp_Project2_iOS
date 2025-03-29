@@ -18,8 +18,63 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
             }
         }
     }
-    var isCelsius = true // Still passed for main screen, but not used for Cities display
+    var isCelsius = true
     
+    // MARK: - Different Presentation Methods
+    
+    // 1. Present this view controller modally from another view controller
+    static func presentModally(from presentingVC: UIViewController, withWeatherData data: [WeatherData]) {
+        let citiesVC = CitiesViewController()
+        citiesVC.weatherDataArray = data
+        citiesVC.modalPresentationStyle = .fullScreen // or .pageSheet, .formSheet, etc.
+        citiesVC.modalTransitionStyle = .coverVertical // or .flipHorizontal, .crossDissolve
+        presentingVC.present(citiesVC, animated: true)
+    }
+    
+    // 2. Push onto navigation stack
+    static func pushOntoNavigationStack(from navigationController: UINavigationController, withWeatherData data: [WeatherData]) {
+        let citiesVC = CitiesViewController()
+        citiesVC.weatherDataArray = data
+        navigationController.pushViewController(citiesVC, animated: true)
+    }
+    
+    // 3. Present as popover
+    static func presentAsPopover(from sourceView: UIView, in sourceVC: UIViewController, withWeatherData data: [WeatherData]) {
+        let citiesVC = CitiesViewController()
+        citiesVC.weatherDataArray = data
+        citiesVC.modalPresentationStyle = .popover
+        citiesVC.preferredContentSize = CGSize(width: 300, height: 400)
+        
+        if let popover = citiesVC.popoverPresentationController {
+            popover.sourceView = sourceView
+            popover.sourceRect = sourceView.bounds
+            popover.permittedArrowDirections = .any
+            popover.delegate = sourceVC as? UIPopoverPresentationControllerDelegate
+        }
+        
+        sourceVC.present(citiesVC, animated: true)
+    }
+    
+    // 4. Custom transition
+    static func presentWithCustomTransition(from presentingVC: UIViewController, withWeatherData data: [WeatherData]) {
+        let citiesVC = CitiesViewController()
+        citiesVC.weatherDataArray = data
+        
+        // Create a custom transition
+        let transition = CATransition()
+        transition.duration = 0.5
+        transition.type = .moveIn
+        transition.subtype = .fromRight
+        
+        // Add the transition to the window
+        presentingVC.view.window?.layer.add(transition, forKey: kCATransition)
+        
+        // Present the view controller (without animation since we're using custom)
+        citiesVC.modalPresentationStyle = .fullScreen
+        presentingVC.present(citiesVC, animated: false)
+    }
+    
+    // MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
@@ -29,16 +84,26 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.rowHeight = 60
         print("CitiesViewController loaded with \(weatherDataArray.count) items, instance: \(ObjectIdentifier(self))")
         
-        // Force reload in case data is set before view loads
+        // Add a close button if presented modally
+        if presentingViewController != nil {
+            let closeButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissVC))
+            navigationItem.rightBarButtonItem = closeButton
+        }
+        
         tableView.reloadData()
+    }
+    
+    @objc private func dismissVC() {
+        dismiss(animated: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         print("View will appear, current weatherDataArray count: \(weatherDataArray.count), instance: \(ObjectIdentifier(self))")
-        tableView.reloadData() // Ensure reload on appearance
+        tableView.reloadData()
     }
     
+    // MARK: - UITableViewDataSource and UITableViewDelegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         let count = weatherDataArray.count
         print("Table view row count: \(count), instance: \(ObjectIdentifier(self))")
@@ -59,7 +124,7 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
         tempLabel.textAlignment = .right
         tempLabel.textColor = .white
         tempLabel.font = .systemFont(ofSize: 14)
-        tempLabel.numberOfLines = 2 // Allow wrapping if needed
+        tempLabel.numberOfLines = 2
         cell.contentView.addSubview(tempLabel)
         
         tempLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -70,26 +135,11 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
             tempLabel.heightAnchor.constraint(equalToConstant: 40)
         ])
         
-        cell.imageView?.image = getWeatherSymbol(for: weather.conditionCode)
         cell.textLabel?.textColor = .white
         cell.backgroundColor = .clear
         cell.imageView?.tintColor = .systemYellow
         
         print("Configured cell for \(weather.city) with condition and temp \(weather.condition), \(tempC)°C / \(tempF)°F, instance: \(ObjectIdentifier(self))")
         return cell
-    }
-    
-    func getWeatherSymbol(for code: Int) -> UIImage? {
-        let config = UIImage.SymbolConfiguration(paletteColors: [.systemYellow, .systemBlue])
-        switch code {
-        case 1000: return UIImage(systemName: "sun.max.fill")?.withConfiguration(config)
-        case 1003: return UIImage(systemName: "cloud.sun.fill")?.withConfiguration(config)
-        case 1006, 1009: return UIImage(systemName: "cloud.fill")?.withConfiguration(config)
-        case 1063, 1180, 1183, 1186, 1189: return UIImage(systemName: "cloud.rain.fill")?.withConfiguration(config)
-        case 1066, 1210, 1213, 1216, 1219: return UIImage(systemName: "cloud.snow.fill")?.withConfiguration(config)
-        case 1030, 1135: return UIImage(systemName: "cloud.fog.fill")?.withConfiguration(config)
-        case 1087, 1273, 1276: return UIImage(systemName: "cloud.bolt.fill")?.withConfiguration(config)
-        default: return UIImage(systemName: "cloud.fill")?.withConfiguration(config)
-        }
     }
 }

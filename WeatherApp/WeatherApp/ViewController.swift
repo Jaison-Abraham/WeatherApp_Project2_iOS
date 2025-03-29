@@ -6,7 +6,6 @@
 //
 
 import UIKit
-
 import CoreLocation
 
 class ViewController: UIViewController {
@@ -36,10 +35,11 @@ class ViewController: UIViewController {
     func setupUI() {
         view.backgroundColor = .systemTeal
         searchTextField.layer.cornerRadius = 10
+        searchTextField.textColor = UIColor.black
         searchButton.layer.cornerRadius = 10
         locationButton.layer.cornerRadius = 30
         locationButton.backgroundColor = .systemBlue
-        locationButton.setImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
+        locationButton.setImage(UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
         locationButton.clipsToBounds = true
         citiesButton.layer.cornerRadius = 12
         tempToggle.layer.cornerRadius = 8
@@ -48,7 +48,6 @@ class ViewController: UIViewController {
     }
     
     @IBAction func searchTapped(_ sender: UIButton) {
-        print("Search button tapped")
         if let city = searchTextField.text?.trimmingCharacters(in: .whitespaces), !city.isEmpty {
             print("Searching for: \(city)")
             fetchWeather(for: city)
@@ -58,12 +57,10 @@ class ViewController: UIViewController {
     }
     
     @IBAction func locationTapped(_ sender: UIButton) {
-        print("Location button tapped")
         locationManager.requestLocation()
     }
     
     @IBAction func toggleChanged(_ sender: UISegmentedControl) {
-        print("Toggle changed to: \(sender.selectedSegmentIndex == 0 ? "Celsius" : "Fahrenheit")")
         isCelsius = sender.selectedSegmentIndex == 0
         updateTemperatureDisplay()
     }
@@ -77,7 +74,6 @@ class ViewController: UIViewController {
             return
         }
         
-        print("Fetching weather for \(city) from: \(urlString)")
         URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
             if let error = error {
                 print("API request failed: \(error.localizedDescription)")
@@ -105,7 +101,6 @@ class ViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self?.weatherDataArray.append(weatherData)
-                    print("Weather data added: \(weatherData.city), \(weatherData.tempC)°C, \(weatherData.tempF)°F")
                     self?.updateUI(with: weatherData)
                 }
             } catch {
@@ -122,7 +117,6 @@ class ViewController: UIViewController {
         conditionLabel.text = weather.condition
         updateTemperatureDisplay()
         weatherImage.image = getWeatherSymbol(for: weather.conditionCode)
-        print("UI updated with: \(weather.city), \(weather.condition), \(isCelsius ? weather.tempC : weather.tempF)\(isCelsius ? "°C" : "°F")")
     }
     
     func updateTemperatureDisplay() {
@@ -130,7 +124,6 @@ class ViewController: UIViewController {
             let temp = isCelsius ? currentWeather.tempC : currentWeather.tempF
             let unit = isCelsius ? "°C" : "°F"
             tempLabel.text = "\(Int(temp))\(unit)"
-            print("Temperature updated to: \(Int(temp))\(unit)")
         } else {
             tempLabel.text = isCelsius ? "0°C" : "0°F"
             print("No weather data, showing default: \(tempLabel.text ?? "N/A")")
@@ -164,12 +157,10 @@ class ViewController: UIViewController {
 
 extension ViewController: CLLocationManagerDelegate, UITextFieldDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("Location updated with \(locations.count) locations")
         if let location = locations.last {
             let geocoder = CLGeocoder()
             geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
                 if let city = placemarks?.first?.locality {
-                    print("Geocoded city: \(city)")
                     self?.fetchWeather(for: city)
                 } else {
                     print("Geocoding failed: \(error?.localizedDescription ?? "Unknown error")")
@@ -185,7 +176,6 @@ extension ViewController: CLLocationManagerDelegate, UITextFieldDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         if status == .authorizedWhenInUse || status == .authorizedAlways {
             print("Location permission granted, requesting location")
-            locationManager.requestLocation()
         } else {
             print("Location permission denied: \(status.rawValue)")
         }
@@ -217,5 +207,3 @@ struct WeatherResponse: Codable {
         }
     }
 }
-
-
