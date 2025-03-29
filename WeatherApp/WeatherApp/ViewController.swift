@@ -33,13 +33,13 @@ class ViewController: UIViewController {
     }
     
     func setupUI() {
-        view.backgroundColor = .systemTeal
+        view.backgroundColor = UIColor(displayP3Red: 67/255, green: 178/255, blue: 231/255, alpha: 1.0)
         searchTextField.layer.cornerRadius = 10
         searchTextField.textColor = UIColor.black
         searchButton.layer.cornerRadius = 10
         locationButton.layer.cornerRadius = 30
         locationButton.backgroundColor = .systemBlue
-        locationButton.setImage(UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
+        locationButton.setImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
         locationButton.clipsToBounds = true
         citiesButton.layer.cornerRadius = 12
         tempToggle.layer.cornerRadius = 8

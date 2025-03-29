@@ -20,25 +20,20 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
     }
     var isCelsius = true
     
-    // MARK: - Different Presentation Methods
-    
-    // 1. Present this view controller modally from another view controller
     static func presentModally(from presentingVC: UIViewController, withWeatherData data: [WeatherData]) {
         let citiesVC = CitiesViewController()
         citiesVC.weatherDataArray = data
-        citiesVC.modalPresentationStyle = .fullScreen // or .pageSheet, .formSheet, etc.
-        citiesVC.modalTransitionStyle = .coverVertical // or .flipHorizontal, .crossDissolve
+        citiesVC.modalPresentationStyle = .fullScreen
+        citiesVC.modalTransitionStyle = .coverVertical
         presentingVC.present(citiesVC, animated: true)
     }
     
-    // 2. Push onto navigation stack
     static func pushOntoNavigationStack(from navigationController: UINavigationController, withWeatherData data: [WeatherData]) {
         let citiesVC = CitiesViewController()
         citiesVC.weatherDataArray = data
         navigationController.pushViewController(citiesVC, animated: true)
     }
     
-    // 3. Present as popover
     static func presentAsPopover(from sourceView: UIView, in sourceVC: UIViewController, withWeatherData data: [WeatherData]) {
         let citiesVC = CitiesViewController()
         citiesVC.weatherDataArray = data
@@ -55,26 +50,21 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
         sourceVC.present(citiesVC, animated: true)
     }
     
-    // 4. Custom transition
     static func presentWithCustomTransition(from presentingVC: UIViewController, withWeatherData data: [WeatherData]) {
         let citiesVC = CitiesViewController()
         citiesVC.weatherDataArray = data
         
-        // Create a custom transition
         let transition = CATransition()
         transition.duration = 0.5
         transition.type = .moveIn
         transition.subtype = .fromRight
         
-        // Add the transition to the window
         presentingVC.view.window?.layer.add(transition, forKey: kCATransition)
         
-        // Present the view controller (without animation since we're using custom)
         citiesVC.modalPresentationStyle = .fullScreen
         presentingVC.present(citiesVC, animated: false)
     }
     
-    // MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
@@ -84,7 +74,6 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.rowHeight = 60
         print("CitiesViewController loaded with \(weatherDataArray.count) items, instance: \(ObjectIdentifier(self))")
         
-        // Add a close button if presented modally
         if presentingViewController != nil {
             let closeButton = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissVC))
             navigationItem.rightBarButtonItem = closeButton
@@ -99,8 +88,10 @@ class CitiesViewController: UIViewController, UITableViewDataSource, UITableView
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        view.backgroundColor = UIColor(displayP3Red: 67/255, green: 178/255, blue: 231/255, alpha: 1.0)
         print("View will appear, current weatherDataArray count: \(weatherDataArray.count), instance: \(ObjectIdentifier(self))")
         tableView.reloadData()
+        
     }
     
     // MARK: - UITableViewDataSource and UITableViewDelegate
