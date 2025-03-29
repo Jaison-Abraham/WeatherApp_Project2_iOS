@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         searchButton.layer.cornerRadius = 10
         locationButton.layer.cornerRadius = 30
         locationButton.backgroundColor = .systemBlue
-        locationButton.setImage(UIImage(systemName: "arrow.up", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
+        locationButton.setImage(UIImage(systemName: "location.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .bold))?.withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
         locationButton.clipsToBounds = true
         citiesButton.layer.cornerRadius = 12
         tempToggle.layer.cornerRadius = 8
